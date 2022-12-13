@@ -35,6 +35,8 @@ def acceptance_prob(
     targets: "numpy.ndarray",
 ) -> "float":
 
+    scores: "float" = 0.0
+
     new_log_density: "float" = log_density(new_weights, data, targets)
 
     previous_log_density: "float" = log_density(previous_weights, data, targets)
@@ -47,4 +49,7 @@ def acceptance_prob(
 
     scores += -(precision / 2) * edit_weights.sum()
 
-    return max(1, math.exp(full_log_density))
+    if full_log_density >= 0:
+        return 1
+    else:
+        return math.exp(full_log_density)
