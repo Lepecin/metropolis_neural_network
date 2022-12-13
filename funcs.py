@@ -1,4 +1,5 @@
 import numpy
+import math
 from scipy.special import log_softmax
 
 
@@ -27,3 +28,22 @@ def log_density(
     scores += -(precision / 2) * (weights**2).sum()
 
     return scores
+
+
+def acceptance_prob(
+    previous_weights: "numpy.ndarray",
+    new_weights: "numpy.ndarray",
+    precision: "float",
+    data: "numpy.ndarray",
+    targets: "numpy.ndarray",
+) -> "float":
+
+    new_log_density: "float" = log_density(new_weights, precision, data, targets)
+
+    previous_log_density: "float" = log_density(
+        previous_weights, precision, data, targets
+    )
+
+    full_log_density: "float" = new_log_density - previous_log_density
+
+    return max(1, math.exp(full_log_density))
