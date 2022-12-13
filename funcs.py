@@ -10,7 +10,6 @@ def cost_function(logits: "numpy.ndarray", target: "int") -> "float":
 
 def log_density(
     weights: "numpy.ndarray",
-    precision: "float",
     data: "numpy.ndarray",
     targets: "numpy.ndarray",
 ) -> "float":
@@ -25,8 +24,6 @@ def log_density(
 
         scores += cost_function(logits=logits, target=targets[index])
 
-    scores += -(precision / 2) * (weights**2).sum()
-
     return scores
 
 
@@ -38,12 +35,16 @@ def acceptance_prob(
     targets: "numpy.ndarray",
 ) -> "float":
 
-    new_log_density: "float" = log_density(new_weights, precision, data, targets)
+    new_log_density: "float" = log_density(new_weights, data, targets)
 
-    previous_log_density: "float" = log_density(
-        previous_weights, precision, data, targets
-    )
+    previous_log_density: "float" = log_density(previous_weights, data, targets)
 
     full_log_density: "float" = new_log_density - previous_log_density
+
+    edit_weights: "numpy.ndarray" = (new_weights - previous_weights) * (
+        new_weights + previous_weights
+    )
+
+    scores += -(precision / 2) * edit_weights.sum()
 
     return max(1, math.exp(full_log_density))
